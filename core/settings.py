@@ -192,22 +192,31 @@ SIMPLE_JWT = {
 # Имена cookie для access/refresh
 AUTH_COOKIE_ACCESS = 'sc_access'
 AUTH_COOKIE_REFRESH = 'sc_refresh'
-AUTH_COOKIE_SAMESITE = os.environ.get('AUTH_COOKIE_SAMESITE', 'Lax')
+AUTH_COOKIE_SAMESITE = os.environ.get('AUTH_COOKIE_SAMESITE', 'None' if not DEBUG else 'Lax')
 AUTH_COOKIE_SECURE = _env_bool('AUTH_COOKIE_SECURE', default=not DEBUG)
 AUTH_COOKIE_DOMAIN = os.environ.get('AUTH_COOKIE_DOMAIN') or None
 
 
 # --- CORS / CSRF ------------------------------------------------------------
 
+_cors_origins_default = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
+if not DEBUG:
+    _cors_origins_default = []
+
 CORS_ALLOWED_ORIGINS = _env_list(
     'DJANGO_CORS_ORIGINS',
-    default=['http://localhost:5173', 'http://127.0.0.1:5173'],
+    default=_cors_origins_default,
 )
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = _env_list(
     'DJANGO_CSRF_TRUSTED_ORIGINS',
-    default=['http://localhost:5173', 'http://127.0.0.1:5173'],
+    default=CORS_ALLOWED_ORIGINS,
 )
 CSRF_COOKIE_HTTPONLY = False  # фронту нужно прочитать токен из cookie
 CSRF_COOKIE_SAMESITE = AUTH_COOKIE_SAMESITE
